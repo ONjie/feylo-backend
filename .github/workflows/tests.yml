@@ -29,4 +29,4 @@ jobs:
 
       - name: Execute Automated Pytest Suite
         run: |
-          uv run pytest
+          uv run pytest tests/
