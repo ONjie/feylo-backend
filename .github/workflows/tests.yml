@@ -28,6 +28,5 @@ jobs:
         run: uv sync --frozen
 
       - name: Execute Automated Pytest Suite
-        working-directory: ./feylo-backend
         run: |
           uv run pytest
