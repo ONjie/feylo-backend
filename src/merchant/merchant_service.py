@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
+from sqlalchemy.orm import selectinload
 from src.merchant.models import Merchant
 from src.merchant.schemas import MerchantCreate, MerchantRead
 from src.merchant.exceptions import (
@@ -28,8 +29,9 @@ async def create_merchant(merchant: MerchantCreate, session:AsyncSession) -> Mer
 
     session.add(db_merchant)
     await session.commit()
-    await session.refresh(db_merchant)
-    return MerchantRead.model_validate(db_merchant)
+    
+    return await get_merchant(session=session, merchant_id=db_merchant.merchant_id)
+    
     
 
 async def get_merchant(
@@ -40,7 +42,10 @@ async def get_merchant(
     if not merchant_id and not phone_number:
         raise InvalidMerchantLookupError("Either merchant_id or phone_number must be provided.")
     
-    query = select(Merchant)
+    query = select(Merchant).options(
+        selectinload(Merchant.transactions),
+        selectinload(Merchant.wallet)
+    )
 
     if merchant_id:
         query = query.where(Merchant.merchant_id == merchant_id)

@@ -22,11 +22,9 @@ class Merchant(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
     )
-
-
     transactions: Mapped[list["Transaction"]] = relationship(
-        back_populates="merchant", lazy="select"
+        back_populates="merchant"
     )
     wallet: Mapped["Wallet"] = relationship(
-        back_populates="merchant", uselist=False, lazy="select"
+        back_populates="merchant", uselist=False
     ) 

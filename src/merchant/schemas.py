@@ -1,6 +1,7 @@
-from pydantic import Field, BaseModel, field_validator
-from typing import List
-import re
+from pydantic import Field, BaseModel
+from typing import List, Optional
+from src.wallet.schemas import WalletRead
+from src.transaction.schemas import TransactionRead
 
 class MerchantCreate(BaseModel):
     first_name: str = Field(description="Merchant's First Name", min_length=3, max_length=50)
@@ -17,7 +18,7 @@ class MerchantRead(BaseModel):
     is_active: bool
     is_verified: bool
     business_name: str
-    #transactions: List[TransactionRead] =[]
-    #wallet: WalletRead = None
+    transactions: List[TransactionRead] = []
+    wallet: Optional[WalletRead] = None
 
     model_config = {"from_attributes": True}

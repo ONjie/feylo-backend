@@ -13,6 +13,8 @@ from src.merchant.exceptions import (
 from src.merchant.schemas import MerchantCreate, MerchantRead
 from tests.conftest import db_session
 from  src.merchant.models import Merchant
+from src.transaction.models import Transaction
+from src.wallet.models import Wallet
 
 @pytest.mark.asyncio
 class TestMerchantService:
@@ -28,7 +30,8 @@ class TestMerchantService:
             pytest.param(
                 True,
                 MerchantAlreadyExistError,
-                "Merchant account with phone number +2202234567 already exists."
+                "Merchant account with phone number +2202234567 already exists.",
+                id="create_merchant_failure"
             )
         ])
     async def test_create_merchant(
@@ -51,6 +54,8 @@ class TestMerchantService:
         
         else:
             await create_merchant(merchant=merchant, session=db_session)
+
+            await db_session.flush()
 
             with pytest.raises(expected_exception) as exc:
                 await create_merchant(merchant=merchant, session=db_session)

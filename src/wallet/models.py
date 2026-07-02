@@ -31,7 +31,7 @@ class Wallet(Base):
 
     merchant: Mapped["Merchant"] = relationship(back_populates="wallet")
     ledger: Mapped[list["WalletLedger"]] = relationship(
-        back_populates="wallet", lazy="select", order_by="WalletLedger.created_at.desc()"
+        back_populates="wallet", order_by="WalletLedger.created_at.desc()"
     )
 
 

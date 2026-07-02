@@ -7,6 +7,8 @@ from fastapi import status
 from main import app
 from src.utils.database import get_db_session
 from src.merchant.models import Merchant
+from src.transaction.models import Transaction
+from src.wallet.models import Wallet
 from tests.conftest import db_session
 from src.otp.models import OTP
 from src.utils.config import settings
