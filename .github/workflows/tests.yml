@@ -29,5 +29,4 @@ jobs:
 
       - name: Execute Automated Pytest Suite
         run: |
-          cd feylo-backend
           uv run pytest
