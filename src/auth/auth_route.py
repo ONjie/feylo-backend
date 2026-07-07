@@ -27,6 +27,9 @@ from src.otp.exceptions import (
     ExpiredOTPError
     )
 
+from src.wallet.wallet_service import create_wallet
+from src.wallet.exceptions import WalletAlreadyExistError
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -37,7 +40,7 @@ async def register_endpoint(payload:RegisterRequest, session: AsyncSession = Dep
         merchant = MerchantCreate.model_validate(payload.model_dump())
         registered_merchant = await create_merchant(merchant=merchant, session=session)
 
-        #2 Create wallet later 
+        await create_wallet(merchant_id=registered_merchant.merchant_id, session=session)
 
         return await send_otp_simulator(
             phone_number=registered_merchant.phone_number,
@@ -45,7 +48,7 @@ async def register_endpoint(payload:RegisterRequest, session: AsyncSession = Dep
             session=session
             )
 
-    except MerchantAlreadyExistError as e:
+    except (MerchantAlreadyExistError, WalletAlreadyExistError) as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"{e.message} — use /auth/login instead",

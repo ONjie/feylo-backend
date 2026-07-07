@@ -156,7 +156,7 @@ class TestWalletService:
             fee=1.25,
             net_amount=net_amount,
             currency="GMD",
-            provider="Wave"
+            payment_provider="Wave"
             )
 
         wallet_id = None

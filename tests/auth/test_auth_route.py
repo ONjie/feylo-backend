@@ -13,6 +13,7 @@ from tests.conftest import db_session
 from src.otp.models import OTP
 from src.utils.config import settings
 from src.auth.security import create_access_token
+from src.wallet.wallet_service import create_wallet
 
 
 @pytest.mark.asyncio
@@ -45,8 +46,9 @@ class TestAuthRoutes:
                 True,
                 status.HTTP_409_CONFLICT,
                 "already exists. — use /auth/login instead",
-                id="registration_failure"
-            )
+                id="registration_merchant_exists_failure"
+            ),
+            
         ]
     )
     async def test_register_endpoint(
@@ -64,6 +66,11 @@ class TestAuthRoutes:
             )
             db_session.add(pre_seeded_merchant)
             await db_session.commit()
+
+            await create_wallet(merchant_id=pre_seeded_merchant.merchant_id, session=db_session)
+            await db_session.commit()
+
+
         
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:

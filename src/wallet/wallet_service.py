@@ -46,7 +46,7 @@ async def wallet_credit(txn: Transaction, session: AsyncSession) -> Wallet:
         amount=txn.net_amount,
         balance_after=wallet.balance,
         description=(
-            f"Payment received via {txn.provider} — "
+            f"Payment received via {txn.payment_provider} — "
             f"{txn.currency} {txn.amount:.2f} "
             f"(fee: {txn.fee:.2f})"
         ),
