@@ -4,7 +4,9 @@ from tests.conftest import db_session
 from src.transaction.transaction_service import (
     create_pending_transaction, 
     get_transaction_by_id,
-    complete_transaction
+    complete_transaction,
+    failed_transaction,
+    get_transactions_list
     )
 from src.transaction.models import Transaction, TxnStatus
 from src.merchant.models import Merchant
@@ -179,3 +181,104 @@ class TestTransactionService:
         assert result.amount == amount
         assert result.net_amount == net_amount
         assert result.fee == fee
+
+
+    @pytest.mark.parametrize(
+        'amount, fee, net_amount',
+        [
+            pytest.param(
+                50.0,
+                0.50,
+                49.50,
+                id="failed_transaction_success"
+            )
+        ]
+    )
+    async def test_failed_transaction(self, db_session, amount, fee, net_amount):
+        merchant = Merchant(
+            first_name="Muhammed",
+            last_name="Njie",
+            business_name="Njie Store",
+            phone_number="+2202234567",
+        )
+        db_session.add(merchant)
+        await db_session.commit()
+        await db_session.refresh(merchant)
+
+        txn = Transaction(
+            merchant_id=merchant.merchant_id,
+            amount=amount,
+            fee=fee,
+            net_amount=net_amount,
+            expires_at=datetime.now(timezone.utc)
+            + timedelta(minutes=settings.QR_EXPIRY_MINUTES),
+        )
+        db_session.add(txn)
+        await db_session.commit()
+        await db_session.refresh(txn)
+
+        result = await failed_transaction(txn=txn, session=db_session)
+
+        assert isinstance(result, Transaction)
+        assert result.id == txn.id
+        assert result.merchant_id == merchant.merchant_id
+        assert result.status == TxnStatus.FAILED
+        assert result.amount == amount
+        assert result.net_amount == net_amount
+        assert result.fee == fee
+
+
+    @pytest.mark.parametrize(
+        'page, per_page, expected_count, total_in_db',
+        [
+            pytest.param(1, 2, 2, 5, id='get_all_transaction_list_success_one'),  
+            pytest.param(2, 2, 2, 5, id='get_all_transaction_list_success_two'), 
+            pytest.param(3, 2, 1, 5, id='get_all_transaction_list_success_three'), 
+            pytest.param(4, 2, 0, 5, id='get_all_transaction_list_success_four'), 
+            pytest.param(1, 10, 5, 5, id='get_all_transaction_list_success_five'), 
+        ]
+    )
+    async def test_get_all_transaction_list(
+        self, db_session, page, per_page, expected_count, total_in_db):
+
+        merchant = Merchant(
+            first_name="Muhammed",
+            last_name="Njie",
+            business_name="Njie Store",
+            phone_number="+2202234567",
+        )
+        db_session.add(merchant)
+        await db_session.commit()
+        await db_session.refresh(merchant)
+    
+        for i in range(total_in_db):
+            txn = Transaction(
+                merchant_id=merchant.merchant_id,
+                amount=50.00,
+                fee=0.50,
+                net_amount=49.50,
+                expires_at=datetime.now(timezone.utc)
+                + timedelta(minutes=settings.QR_EXPIRY_MINUTES),
+            )
+            db_session.add(txn)
+            await db_session.commit()
+            await db_session.refresh(txn)
+
+
+        
+        transactions, total = await get_transactions_list(
+            session=db_session, 
+            merchant_id=merchant.merchant_id, 
+            page=page, 
+            per_page=per_page
+            )
+        
+        assert total == total_in_db
+        assert len(transactions) == expected_count
+
+        if expected_count > 1:
+            for i in range(len(transactions) - 1):
+                assert (
+                    transactions[i].created_at
+                    >= transactions[i + 1].created_at
+                )

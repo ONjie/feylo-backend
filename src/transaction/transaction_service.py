@@ -27,8 +27,6 @@ async def create_pending_transaction(
     return txn
 
 
-
-
 async def get_transaction_by_id(transaction_id: str, session: AsyncSession) -> Transaction:
 
     result = await session.execute(
@@ -55,3 +53,32 @@ async def complete_transaction(
     await session.commit()
     await session.refresh(txn)
     return txn
+
+
+async def failed_transaction(txn: Transaction, session: AsyncSession) -> Transaction:
+    txn.status = TxnStatus.FAILED
+    await session.commit()
+    return txn
+
+
+async def get_transactions_list(
+    session: AsyncSession,
+    merchant_id: str,
+    page: int = 1,
+    per_page: int = 20,
+) -> tuple[list[Transaction], int]:
+    offset = (page - 1) * per_page
+
+    count_result = await session.execute(
+        select(func.count()).where(Transaction.merchant_id == merchant_id)
+    )
+    total = count_result.scalar_one()
+
+    result = await session.execute(
+        select(Transaction)
+        .where(Transaction.merchant_id == merchant_id)
+        .order_by(Transaction.created_at.desc())
+        .offset(offset)
+        .limit(per_page)
+    )
+    return result.scalars().all(), total
