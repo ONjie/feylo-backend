@@ -51,7 +51,7 @@ class TestPaymentRoute:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:
-            response = await client.post("payments/generate-qr-code", json=payload, headers=headers)
+            response = await client.post("/api/v1/payments/generate-qr-code", json=payload, headers=headers)
         
         app.dependency_overrides.clear()
         print(response.json())

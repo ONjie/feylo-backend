@@ -13,6 +13,7 @@ class QRResponse(BaseModel):
     qr_image_b64: str
     amount: float
     currency: str
+    business_name:str
     expires_at: datetime
 
 

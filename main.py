@@ -11,10 +11,13 @@ async def lifespan(app: FastAPI):
     yield
 
 
+
 app = FastAPI(title=settings.APP_NAME, lifespan=lifespan)
 
-app.include_router(router=auth_router)
-app.include_router(router=payment_router)
+API_PREFIX = "/api/v1"
+
+app.include_router(router=auth_router, prefix=API_PREFIX)
+app.include_router(router=payment_router, prefix=API_PREFIX)
 
 @app.get("/health")
 async def health_check(db: AsyncSession = Depends(get_db_session)):

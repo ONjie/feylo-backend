@@ -5,14 +5,14 @@ from src.utils.config import settings
 
 
 def generate_qr_code(transaction_id: str) -> str:
-    url = f"{settings.BASE_URL}/checkout/{transaction_id}"
+    checkout_url = f"{settings.BASE_URL}/api/v1/checkout/{transaction_id}"
 
     qr = QRCode(
         error_correction=constants.ERROR_CORRECT_M,
         box_size=10,
         border=4,
     )
-    qr.add_data(url)
+    qr.add_data(checkout_url)
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")

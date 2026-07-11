@@ -74,7 +74,7 @@ class TestAuthRoutes:
         
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:
-            response = await client.post("auth/register", json=payload)
+            response = await client.post("/api/v1/auth/register", json=payload)
 
         assert response.status_code == expected_http_status
         if expected_http_status == status.HTTP_201_CREATED:
@@ -125,7 +125,7 @@ class TestAuthRoutes:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:
-            response = await client.post('auth/login', json=payload)
+            response = await client.post('/api/v1/auth/login', json=payload)
         
 
         app.dependency_overrides.clear()
@@ -220,7 +220,7 @@ class TestAuthRoutes:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:
-            response = await client.post('auth/verify-otp', json=payload)
+            response = await client.post('/api/v1/auth/verify-otp', json=payload)
 
         app.dependency_overrides.clear()
 
@@ -291,7 +291,7 @@ class TestAuthRoutes:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:
-            response = await client.post('auth/resend-otp', json=payload)
+            response = await client.post('/api/v1/auth/resend-otp', json=payload)
         
 
         app.dependency_overrides.clear()
@@ -371,7 +371,7 @@ class TestAuthRoutes:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:
-            response = await client.get("/auth/me", headers=headers)  
+            response = await client.get("/api/v1/auth/me", headers=headers)  
 
         app.dependency_overrides.clear()
 

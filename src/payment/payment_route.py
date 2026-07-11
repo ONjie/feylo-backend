@@ -6,6 +6,7 @@ from src.merchant.schemas import MerchantRead
 from src.transaction.transaction_service import create_pending_transaction
 from src.utils.database import get_db_session
 from src.auth.security import get_current_merchant
+from src.utils.config import settings
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
@@ -26,10 +27,13 @@ async def generate_qr_code_endpoint(
     
     qr_b64 = generate_qr_code(transaction_id=transaction.id)
 
+    checkout_url = f"{settings.BASE_URL}/api/v1/checkout/{transaction.id}"
+
     return QRResponse(
         txn_id=transaction.id,
-        qr_url=f"{merchant.merchant_id}/{transaction.id}",
+        qr_url=checkout_url,
         qr_image_b64=qr_b64,
+        business_name=merchant.business_name,
         amount=transaction.amount,
         currency=transaction.currency,
         expires_at=transaction.expires_at,
