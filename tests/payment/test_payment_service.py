@@ -30,4 +30,4 @@ class TestPaymentService:
         detector = cv2.QRCodeDetector()
         data, _, _ = detector.detectAndDecode(image)
 
-        assert data == f"{settings.BASE_URL}/checkout/{transaction_id}"
+        assert data == f"{settings.BASE_URL}/api/v1/checkout/{transaction_id}"
