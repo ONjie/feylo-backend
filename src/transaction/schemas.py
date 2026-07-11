@@ -19,7 +19,7 @@ class TransactionRead(BaseModel):
 
 
 class TransactionListResponse(BaseModel):
-    items: list[TransactionRead]
+    transactions: list[TransactionRead]
     total: int
     page: int
     per_page: int

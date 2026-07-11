@@ -81,4 +81,5 @@ async def get_transactions_list(
         .offset(offset)
         .limit(per_page)
     )
+
     return result.scalars().all(), total
