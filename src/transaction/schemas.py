@@ -9,8 +9,8 @@ class TransactionRead(BaseModel):
     net_amount: float
     currency: str
     status: str
-    provider: Optional[str]
-    customer_phone: Optional[str]
+    payment_provider: Optional[str]
+    customer_phone_number: Optional[str]
     external_ref: Optional[str]
     created_at: datetime
     completed_at: Optional[datetime]

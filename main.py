@@ -4,6 +4,7 @@ from sqlalchemy import text
 from src.utils.config import settings
 from src.utils.database import get_db_session, init_db_tables
 from src.auth.auth_route import router as auth_router
+from src.payment.payment_route import router as payment_router
 
 async def lifespan(app: FastAPI):
     await init_db_tables()
@@ -13,6 +14,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=settings.APP_NAME, lifespan=lifespan)
 
 app.include_router(router=auth_router)
+app.include_router(router=payment_router)
 
 @app.get("/health")
 async def health_check(db: AsyncSession = Depends(get_db_session)):
