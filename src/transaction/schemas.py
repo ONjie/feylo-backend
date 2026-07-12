@@ -4,6 +4,7 @@ from typing import Optional
 
 class TransactionRead(BaseModel):
     id: str
+    merchant_id: str
     amount: float
     fee: float
     net_amount: float

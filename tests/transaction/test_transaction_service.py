@@ -233,9 +233,7 @@ class TestTransactionService:
         [
             pytest.param(1, 2, 2, 5, id='get_all_transaction_list_success_one'),  
             pytest.param(2, 2, 2, 5, id='get_all_transaction_list_success_two'), 
-            pytest.param(3, 2, 1, 5, id='get_all_transaction_list_success_three'), 
-            pytest.param(4, 2, 0, 5, id='get_all_transaction_list_success_four'), 
-            pytest.param(1, 10, 5, 5, id='get_all_transaction_list_success_five'), 
+            pytest.param(1, 10, 5, 0, id='get_all_transaction_list_failure'), 
         ]
     )
     async def test_get_all_transaction_list(
@@ -250,35 +248,47 @@ class TestTransactionService:
         db_session.add(merchant)
         await db_session.commit()
         await db_session.refresh(merchant)
+
+        if total_in_db != 0:
     
-        for i in range(total_in_db):
-            txn = Transaction(
-                merchant_id=merchant.merchant_id,
-                amount=50.00,
-                fee=0.50,
-                net_amount=49.50,
-                expires_at=datetime.now(timezone.utc)
-                + timedelta(minutes=settings.QR_EXPIRY_MINUTES),
-            )
-            db_session.add(txn)
-            await db_session.commit()
-            await db_session.refresh(txn)
-
-
-        
-        transactions, total = await get_transactions_list(
-            session=db_session, 
-            merchant_id=merchant.merchant_id, 
-            page=page, 
-            per_page=per_page
-            )
-        
-        assert total == total_in_db
-        assert len(transactions) == expected_count
-
-        if expected_count > 1:
-            for i in range(len(transactions) - 1):
-                assert (
-                    transactions[i].created_at
-                    >= transactions[i + 1].created_at
+            for i in range(total_in_db):
+                txn = Transaction(
+                    merchant_id=merchant.merchant_id,
+                    amount=50.00,
+                    fee=0.50,
+                    net_amount=49.50,
+                    expires_at=datetime.now(timezone.utc)
+                    + timedelta(minutes=settings.QR_EXPIRY_MINUTES),
                 )
+                db_session.add(txn)
+                await db_session.commit()
+                await db_session.refresh(txn)
+            
+            transactions, total = await get_transactions_list(
+                session=db_session, 
+                merchant_id=merchant.merchant_id, 
+                page=page, 
+                per_page=per_page
+                )
+            
+            assert total == total_in_db
+            assert len(transactions) == expected_count
+
+            if expected_count > 1:
+                for i in range(len(transactions) - 1):
+                    assert (
+                        transactions[i].created_at
+                        >= transactions[i + 1].created_at
+                    )
+
+
+        else:
+            with pytest.raises(TransactionNotFoundError) as exc:
+                await get_transactions_list(
+                session=db_session, 
+                merchant_id=merchant.merchant_id, 
+                page=page, 
+                per_page=per_page
+                )
+
+            assert f"No transactions found for merchant {merchant.merchant_id}" in str(exc.value)

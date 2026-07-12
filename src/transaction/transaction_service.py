@@ -74,6 +74,9 @@ async def get_transactions_list(
     )
     total = count_result.scalar_one()
 
+    if total == 0:
+        raise TransactionNotFoundError(f"No transactions found for merchant {merchant_id}")
+
     result = await session.execute(
         select(Transaction)
         .where(Transaction.merchant_id == merchant_id)

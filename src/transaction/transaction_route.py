@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.utils.database import get_db_session
 from src.merchant.schemas import MerchantRead
@@ -15,8 +15,8 @@ router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
 
-@router.get("/{txn_id}", response_model=TransactionRead)
-async def get_transaction(
+@router.get("/{transaction_id}", response_model=TransactionRead)
+async def get_transaction_id_endpoint(
     transaction_id: str,
     merchant: MerchantRead = Depends(get_current_merchant),
     session: AsyncSession = Depends(get_db_session),
@@ -25,15 +25,14 @@ async def get_transaction(
         transaction = await get_transaction_by_id(transaction_id=transaction_id, session=session)
 
         if transaction.merchant_id != merchant.merchant_id:
-            from fastapi import HTTPException, status
             raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Not your transaction")
-        return transaction
+        return TransactionRead.model_validate(transaction)
     except TransactionNotFoundError as e:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail=e.message)
 
 
 @router.get("/", response_model=TransactionListResponse)
-async def list_transactions(
+async def get_transactions_list_endpoint(
     page: int = 1,
     per_page: int = 20,
     merchant: MerchantRead = Depends(get_current_merchant),
