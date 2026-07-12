@@ -31,7 +31,7 @@ async def get_transaction_id_endpoint(
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail=e.message)
 
 
-@router.get("/", response_model=TransactionListResponse)
+@router.get("", response_model=TransactionListResponse)
 async def get_transactions_list_endpoint(
     page: int = 1,
     per_page: int = 20,
@@ -39,14 +39,20 @@ async def get_transactions_list_endpoint(
     session: AsyncSession = Depends(get_db_session),
 ):
     
-    transactions, total = await get_transactions_list(
-        session=session, 
-        merchant_id=merchant.merchant_id, 
-        page=page, 
-        per_page=per_page
-    )
-    return TransactionListResponse(
-        transactions=transactions, 
-        total=total, 
-        page=page, 
-        per_page=per_page)
+    try:
+        transactions, total = await get_transactions_list(
+            session=session, 
+            merchant_id=merchant.merchant_id, 
+            page=page, 
+            per_page=per_page
+        )
+        return TransactionListResponse(
+            transactions=[TransactionRead.model_validate(t) for t in transactions], 
+            total=total, 
+            page=page, 
+            per_page=per_page
+            )
+   
+
+    except TransactionNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)

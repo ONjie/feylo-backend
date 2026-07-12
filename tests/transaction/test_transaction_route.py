@@ -128,7 +128,80 @@ class TestTransactionRoute:
         
 
 
+    @pytest.mark.parametrize(
+        "has_transactions, expected_http_status",
+        [
+            pytest.param(True, status.HTTP_200_OK, id="get_transactions_list_endpoint_success"),
+            pytest.param(False, status.HTTP_404_NOT_FOUND, id="get_transactions_list_endpoint_failure"),
+        ]
+    )
+    async def test_get_transactions_list_endpoint(
+        self, 
+        db_session, 
+        has_transactions, 
+        expected_http_status
+    ):
+        app.dependency_overrides[get_db_session] = lambda: db_session
 
+        merchant = Merchant(
+            merchant_id="MERCH_1234",
+            first_name="Muhammed",
+            last_name="Njie",
+            business_name="Njie Store",
+            phone_number="+2202234567",
+            is_verified=True,
+            is_active=True
+        )
+        db_session.add(merchant)
+        await db_session.commit()
+        await db_session.refresh(merchant)
+
+        
+        if has_transactions:
+            for i in range(3):
+                txn = Transaction(
+                    id=f"TXN_123{i}",
+                    merchant_id=merchant.merchant_id,
+                    amount=50.00 * (i + 1),
+                    fee=0.50,
+                    net_amount=(49.50 * (i + 1)) - 1.00,
+                    expires_at=datetime.now(timezone.utc)
+                    + timedelta(minutes=settings.QR_EXPIRY_MINUTES),
+                )
+                db_session.add(txn)
+                await db_session.commit()
+                await db_session.refresh(txn)
+
+        
+        token_string = create_access_token(merchant_id=merchant.merchant_id)
+        headers = {"Authorization": f"Bearer {token_string}"}
+        payload = {
+            "page":1,
+            "per_page":10
+        }
+    
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url=self.base_url) as client:
+            response = await client.get('/api/v1/transactions?page=1&per_page=10', headers=headers)
+ 
+        app.dependency_overrides.clear()
+
+
+        assert response.status_code == expected_http_status
+        json_data = response.json()
+
+        if response.status_code == status.HTTP_200_OK:
+            assert json_data["total"] == 3
+            assert len(json_data["transactions"]) == 3
+            assert json_data["transactions"][0]["id"] == "TXN_1232" 
+        
+        elif response.status_code == status.HTTP_404_NOT_FOUND:
+            assert json_data["detail"] == f"No transactions found for merchant {merchant.merchant_id}"
+
+
+        
+
+        
             
 
         
