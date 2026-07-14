@@ -167,6 +167,6 @@ async def resend_otp_endpoint(payload: ResendOTPRequest, session: AsyncSession=D
         )
 
 
-@router.get('/me')
-async def check_auth_status(merchant: MerchantRead = Depends(get_current_merchant)):
-    return merchant
+@router.get('/status')
+async def check_auth_status_endpoint(merchant: MerchantRead = Depends(get_current_merchant)):
+    return {"status": "authenticated"}

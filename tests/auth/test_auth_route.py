@@ -312,13 +312,13 @@ class TestAuthRoutes:
 
     
     @pytest.mark.parametrize(
-        "merchant_state, use_valid_token, expected_http_status, expected_detail_message",
+        "merchant_state, use_valid_token, expected_http_status, expected_message",
         [
             pytest.param(
                 {"is_verified": True, "is_active": True},
                 True,
                 status.HTTP_200_OK,
-                None,
+                'authenticated',
                 id="check_auth_success"
             ),
             pytest.param(
@@ -344,8 +344,8 @@ class TestAuthRoutes:
             ),
         ],
     )
-    async def test_check_auth_status(
-        self, db_session, merchant_state, use_valid_token, expected_http_status, expected_detail_message):
+    async def test_check_auth_status_endpoint(
+        self, db_session, merchant_state, use_valid_token, expected_http_status, expected_message):
 
         app.dependency_overrides[get_db_session] = lambda: db_session
 
@@ -371,17 +371,15 @@ class TestAuthRoutes:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:
-            response = await client.get("/api/v1/auth/me", headers=headers)  
+            response = await client.get("/api/v1/auth/status", headers=headers)  
 
         app.dependency_overrides.clear()
 
         assert response.status_code == expected_http_status
         json_data = response.json()
 
+
         if expected_http_status == status.HTTP_200_OK:
-            assert json_data["merchant_id"] == merchant_id
-            assert json_data["business_name"] == "Njie Store"
-            assert json_data["is_active"] is True
-            assert json_data["is_verified"] is True
+            assert json_data["status"] == expected_message
         else:
-            assert expected_detail_message in json_data["detail"]
+            assert json_data["detail"] == expected_message
