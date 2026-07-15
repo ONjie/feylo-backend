@@ -7,6 +7,7 @@ from src.auth.auth_route import router as auth_router
 from src.payment.payment_route import router as payment_router
 from src.transaction.transaction_route import router as transaction_router
 from src.merchant.merchant_route import router as merchant_router
+from src.websocket.websocket_route import router as websocket_router
 
 async def lifespan(app: FastAPI):
     await init_db_tables()
@@ -22,6 +23,8 @@ app.include_router(router=auth_router, prefix=API_PREFIX)
 app.include_router(router=payment_router, prefix=API_PREFIX)
 app.include_router(router=transaction_router, prefix=API_PREFIX)
 app.include_router(router=merchant_router, prefix=API_PREFIX)
+
+app.include_router(router=websocket_router)
 
 
 @app.get("/health")

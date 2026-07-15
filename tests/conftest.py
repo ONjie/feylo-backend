@@ -2,12 +2,19 @@ import pytest_asyncio
 from testcontainers.postgres import PostgresContainer
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from src.utils.database import Base
+from testcontainers.redis import RedisContainer
 
 
 @pytest_asyncio.fixture(scope="module")
 async def postgres_container():
     with PostgresContainer("postgres:16-alpine") as postgres:
         yield postgres
+
+
+@pytest_asyncio.fixture(scope="module")
+async def redis_container():
+    with RedisContainer("redis:7-alpine") as redis:
+        yield redis
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -30,3 +37,13 @@ async def db_session(postgres_container):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def redis_client_url(redis_container):
+    
+    host = redis_container.get_container_host_ip()
+    port = redis_container.get_exposed_port(redis_container.port)
+    
+    url = f"redis://{host}:{port}/0"
+    yield url

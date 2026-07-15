@@ -31,8 +31,7 @@ async def create_merchant(merchant: MerchantCreate, session:AsyncSession) -> Mer
     await session.commit()
     
     return await get_merchant(session=session, merchant_id=db_merchant.merchant_id)
-    
-    
+        
 
 async def get_merchant(
         session:AsyncSession,
