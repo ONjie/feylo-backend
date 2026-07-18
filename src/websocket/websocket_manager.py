@@ -78,39 +78,3 @@ class ConnectionManager:
         return sum(len(v) for v in self.active.values())
 
 manager = ConnectionManager()
-
-
-"""class ConnectionManager:
-
-    def __init__(self) -> None:
-        self.active: dict[str, list[WebSocket]] = defaultdict(list)
-
-    async def connect(self, merchant_id: str, ws: WebSocket) -> None:
-        await ws.accept()
-        self.active[merchant_id].append(ws)
-        logger.info(f"WS connected: {merchant_id} ({len(self.active[merchant_id])} socket(s))")
-
-    def disconnect(self, merchant_id: str, ws: WebSocket) -> None:
-        try:
-            self.active[merchant_id].remove(ws)
-            logger.info(f"WS disconnected: {merchant_id}")
-        except ValueError:
-            pass
-
-    async def broadcast(self, merchant_id: str, data: dict) -> None:
-        payload = json.dumps(data)
-        dead: list[WebSocket] = []
-        for ws in self.active.get(merchant_id, []):
-            try:
-                await ws.send_text(payload)
-            except Exception:
-                dead.append(ws)
-        for ws in dead:
-            self.disconnect(merchant_id, ws)
-
-    def connected_count(self) -> int:
-        return sum(len(v) for v in self.active.values())
-
-
-
-manager = ConnectionManager()"""
