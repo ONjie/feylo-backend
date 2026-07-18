@@ -17,6 +17,7 @@ dependencies = [
     "python-jose>=3.5.0",
     "qrcode[pil]>=8.2",
     "redis>=8.0.1",
+    "respx>=0.23.1",
     "sqlalchemy>=2.0.50",
     "testcontainers[postgres]>=4.14.2",
 ]

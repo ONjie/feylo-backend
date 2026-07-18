@@ -1,5 +1,4 @@
-
-import logging
+import logging, sys
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.utils.database import get_db_session
@@ -12,6 +11,12 @@ from src.websocket.websocket_manager import manager
 
 
 router = APIRouter(prefix="/payments", tags=["webhook"])
+
+logging.basicConfig(
+    level=logging.INFO,                                
+    format="%(asctime)s [%(levelname)s] %(message)s",  
+    handlers=[logging.StreamHandler(sys.stdout)]  
+)
 logger = logging.getLogger(__name__)
 
 
