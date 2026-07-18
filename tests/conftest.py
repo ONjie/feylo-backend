@@ -1,8 +1,9 @@
-import pytest_asyncio
+import pytest_asyncio, pytest
 from testcontainers.postgres import PostgresContainer
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from src.utils.database import Base
 from testcontainers.redis import RedisContainer
+from src.utils.config import settings
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -46,4 +47,6 @@ async def redis_client_url(redis_container):
     port = redis_container.get_exposed_port(redis_container.port)
     
     url = f"redis://{host}:{port}/0"
+    print(f'url: {url}')
     yield url
+

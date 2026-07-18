@@ -197,7 +197,6 @@ class TestWalletService:
             assert f"No wallet found for merchant id: {merchant.merchant_id}" in str(exc.value)
 
 
-
     @pytest.mark.parametrize(
         "wallet_exist, total_ledger_records, query_limit, expected_count, expected_exception",
         [
