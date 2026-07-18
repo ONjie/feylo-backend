@@ -13,9 +13,11 @@ from src.auth.security import (
     verify_pin_code,
     create_access_token,
     decode_access_token,
-    get_current_merchant
+    get_current_merchant,
+    verify_signature
 )
 from tests.conftest import db_session
+import hmac, hashlib
 
 
 def test_hash_and_verify_pin_code():
@@ -185,3 +187,52 @@ class TestGetCurrentMerchantDependency:
             assert result.is_active is True
             assert result.is_verified is True
 
+
+
+def get_valid_header(body: bytes) -> str:
+    hash_val = hmac.new(settings.WEBHOOK_SECRET_KEY.encode(), body, hashlib.sha256).hexdigest()
+    return f"sha256={hash_val}"
+
+@pytest.mark.parametrize(
+     "raw_body, get_signature_header, expected_result",
+    [
+        pytest.param(
+            b'{"merchant_id": "MERCH_1234"}', 
+            lambda: get_valid_header(b'{"merchant_id": "MERCH_1234"}'), 
+            True, 
+            id="valid_payload"
+            ),
+        pytest.param(
+            b"", 
+            lambda: get_valid_header(b""), 
+            True, 
+            id="valid_empty_payload"
+            ),
+        pytest.param(
+            b'{"merchant_id": "MERCH_1234"}', 
+            lambda: "sha256=incorrect_hash_string", 
+            False, 
+            id="bad_signature_hash"),
+        pytest.param(
+            b'{"merchant_id": "MERCH_1234"}', 
+            lambda: get_valid_header(b'{"merchant_id": "MERCH_2222"}'), 
+            False, 
+            id="tampered_payload_body"
+            ),
+        pytest.param(
+            b'{"merchant_id": "MERCH_1234"}', 
+            lambda: get_valid_header(b'{"merchant_id": "MERCH_1234"}').replace("sha256=", ""), 
+            False, 
+            id="missing_prefix"
+            ),
+        pytest.param(
+            b'{"merchant_id": "MERCH_1234"}', 
+            lambda: "", 
+            False, 
+            id="blank_header"
+            ),
+    ],
+)
+def test_verify_signature(raw_body, get_signature_header, expected_result):
+    header_string = get_signature_header()
+    assert verify_signature(raw_body, header_string) is expected_result

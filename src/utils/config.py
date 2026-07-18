@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = ''
     JWT_ALGORITHM: str = 'HS256'
     JWT_EXPIRE_DAYS: int = 15
-    WEBHOOK_SECRET_KEY: SecretStr = ''
+    WEBHOOK_SECRET_KEY: str = ''
     DATABASE_URL: str = Field(
         default="postgresql+asyncpg://feylo_postgres_user:feylo_postgres_password@localhost:5432/feylo_db"
     )

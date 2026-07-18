@@ -11,6 +11,9 @@ from src.merchant.schemas import MerchantRead
 from src.merchant.merchant_service import get_merchant
 from fastapi import HTTPException, status
 from src.merchant.exceptions import MerchantNotFoundError
+from src.transaction.models import Transaction
+from src.wallet.models import Wallet
+import hmac, hashlib
 
 password_hash = PasswordHash.recommended()
 
@@ -78,7 +81,11 @@ async def get_current_merchant(
         return merchant
 
 
-
+def verify_signature(raw_body: bytes, signature_header: str) -> bool:
+        expected = hmac.new(
+                settings.WEBHOOK_SECRET_KEY.encode(), raw_body, hashlib.sha256
+        ).hexdigest()
+        return hmac.compare_digest(f"sha256={expected}", signature_header)
 
 
 
