@@ -6,7 +6,8 @@ from src.transaction.transaction_service import (
     get_transaction_by_id,
     complete_transaction,
     failed_transaction,
-    get_transactions_list
+    get_transactions_list,
+    expired_transaction
     )
 from src.transaction.models import Transaction, TxnStatus
 from src.merchant.models import Merchant
@@ -292,3 +293,48 @@ class TestTransactionService:
                 )
 
             assert f"No transactions found for merchant {merchant.merchant_id}" in str(exc.value)
+
+    @pytest.mark.parametrize(
+        'amount, fee, net_amount',
+        [
+            pytest.param(
+                50.0,
+                0.50,
+                49.50,
+                id="expired_transaction_success"
+            )
+        ]
+    )
+    async def test_failed_transaction(self, db_session, amount, fee, net_amount):
+        merchant = Merchant(
+            first_name="Muhammed",
+            last_name="Njie",
+            business_name="Njie Store",
+            phone_number="+2202234567",
+        )
+        db_session.add(merchant)
+        await db_session.commit()
+        await db_session.refresh(merchant)
+
+        txn = Transaction(
+            merchant_id=merchant.merchant_id,
+            amount=amount,
+            fee=fee,
+            net_amount=net_amount,
+            expires_at=datetime.now(timezone.utc)
+            + timedelta(minutes=settings.QR_EXPIRY_MINUTES),
+        )
+        db_session.add(txn)
+        await db_session.commit()
+        await db_session.refresh(txn)
+
+        result = await expired_transaction(txn=txn, session=db_session)
+
+        assert isinstance(result, Transaction)
+        assert result.id == txn.id
+        assert result.merchant_id == merchant.merchant_id
+        assert result.status == TxnStatus.EXPIRED
+        assert result.amount == amount
+        assert result.net_amount == net_amount
+        assert result.fee == fee
+
