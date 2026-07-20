@@ -86,3 +86,9 @@ async def get_transactions_list(
     )
 
     return result.scalars().all(), total
+
+
+async def expired_transaction(txn: Transaction, session: AsyncSession) -> Transaction:
+    txn.status = TxnStatus.EXPIRED
+    await session.commit()
+    return txn
