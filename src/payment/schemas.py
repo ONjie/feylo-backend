@@ -29,6 +29,3 @@ class WebhookPayload(BaseModel):
 class WebhookResponse(BaseModel):
     received: bool = True    
 
-class CheckoutPayRequest(BaseModel):
-    payment_provider: str            
-    phone_number: str
