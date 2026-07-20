@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME, 
-    description="Unified Mobile Money Payment Gateway for The Gambia",
+    description="Unified Merchant Payment Gateway for The Gambia",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
