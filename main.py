@@ -9,14 +9,35 @@ from src.transaction.transaction_route import router as transaction_router
 from src.merchant.merchant_route import router as merchant_router
 from src.websocket.websocket_route import router as websocket_router
 from src.payment.payment_webhook_route import router as payment_webhook_router
+from src.checkout.checkout_routes import router as checkout_router
+from src.websocket.websocket_manager import manager
+
+from fastapi.middleware.cors import CORSMiddleware
 
 async def lifespan(app: FastAPI):
     await init_db_tables()
+    await manager.start_listening()
     yield
+    await manager.stop_listening()
 
 
 
-app = FastAPI(title=settings.APP_NAME, lifespan=lifespan)
+app = FastAPI(
+    title=settings.APP_NAME, 
+    description="Unified Mobile Money Payment Gateway for The Gambia",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan
+    )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if settings.DEBUG else [settings.BASE_URL],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 API_PREFIX = "/api/v1"
 
@@ -25,6 +46,8 @@ app.include_router(router=payment_router, prefix=API_PREFIX)
 app.include_router(router=transaction_router, prefix=API_PREFIX)
 app.include_router(router=merchant_router, prefix=API_PREFIX)
 app.include_router(router=payment_webhook_router, prefix=API_PREFIX)
+app.include_router(router=checkout_router, prefix=API_PREFIX)
+
 app.include_router(router=websocket_router)
 
 
