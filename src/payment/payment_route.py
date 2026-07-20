@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.payment.schemas import QRRequest, QRResponse
 from src.payment.payment_service import generate_qr_code
 from src.merchant.schemas import MerchantRead
-from src.transaction.transaction_service import create_pending_transaction
+from src.transaction.transaction_service import create_pending_transaction, get_transaction_by_id
 from src.utils.database import get_db_session
 from src.auth.security import get_current_merchant
 from src.utils.config import settings
+from src.transaction.exceptions import TransactionNotFoundError
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
@@ -38,3 +39,4 @@ async def generate_qr_code_endpoint(
         currency=transaction.currency,
         expires_at=transaction.expires_at,
     )
+
