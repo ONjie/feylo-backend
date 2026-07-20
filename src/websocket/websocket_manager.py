@@ -74,6 +74,16 @@ class ConnectionManager:
         except Exception as e:
             logger.error(f"Redis link dropped unexpectedly: {e}")
 
+    async def stop_listening(self) -> None:
+        if self._listen_task and not self._listen_task.done():
+            self._listen_task.cancel()
+            try:
+                await self._listen_task
+            except asyncio.CancelledError:
+                pass
+            logger.info("Redis Pub/Sub background listener stopped.")
+
+
     def connected_count(self) -> int:
         return sum(len(v) for v in self.active.values())
 
