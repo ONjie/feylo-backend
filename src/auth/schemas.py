@@ -26,7 +26,6 @@ class RegisterRequest(BaseModel):
 
 class LoginRequest(BaseModel):
     phone_number: str = Field(description="Merchant's Phone Number")
-    business_name: str=Field(description="Merchant's Business Name")
 
     @field_validator("phone_number")
     @classmethod
