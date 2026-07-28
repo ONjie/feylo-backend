@@ -48,11 +48,4 @@ class AuthResponse(BaseModel):
     status: str = "success"
     access_token: str
     token_type: str = "bearer"
-    merchant: dict
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
     merchant_id: str
-    business_name: str
-    phone_number: str
