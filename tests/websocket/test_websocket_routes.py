@@ -84,7 +84,7 @@ class TestWebsocketRoute:
             get_merchant_mock.side_effect = MerchantNotFoundError()
 
         with patch(
-            "src.websocket.websocket_route.get_merchant",
+            "src.websocket.websocket_routes.get_merchant",
             get_merchant_mock,
         ):
                 client = TestClient(app=app)
