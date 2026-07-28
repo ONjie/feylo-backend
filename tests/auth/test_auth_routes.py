@@ -85,13 +85,13 @@ class TestAuthRoutes:
         'payload, should_pre_seed, expected_http_status, expected_detail_message',
         [
             pytest.param(
-                {"phone_number": "+2202233445", "business_name": "Njie Store"},
+                {"phone_number": "+2202233445"},
                 True,
                 status.HTTP_200_OK,
                 'OTP sent — check your phone',
                 id='login_success'
             ), pytest.param(
-                {"phone_number": "+2202244556", "business_name": "Njie Store"},
+                {"phone_number": "+2202244556"},
                 False, 
                 status.HTTP_404_NOT_FOUND,
                 "Merchant +2202244556 not found.", 
@@ -99,7 +99,7 @@ class TestAuthRoutes:
             ),
             
             pytest.param(
-                {"phone_number": "+2201111111", "business_name": "Njie Store"}, 
+                {"phone_number": "+2201111111"}, 
                 False,
                 status.HTTP_422_UNPROCESSABLE_CONTENT,
                 'Value error, Invalid Gambian phone number format. Must be a valid 7-digit local number or include the 220 prefix.',
