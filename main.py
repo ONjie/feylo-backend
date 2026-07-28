@@ -3,12 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from src.utils.config import settings
 from src.utils.database import get_db_session, init_db_tables
-from src.auth.auth_route import router as auth_router
-from src.payment.payment_route import router as payment_router
-from src.transaction.transaction_route import router as transaction_router
-from src.merchant.merchant_route import router as merchant_router
-from src.websocket.websocket_route import router as websocket_router
-from src.payment.payment_webhook_route import router as payment_webhook_router
+from src.auth.auth_routes import router as auth_router
+from src.payment.payment_routes import router as payment_router
+from src.transaction.transaction_routes import router as transaction_router
+from src.merchant.merchant_routes import router as merchant_router
+from src.websocket.websocket_routes import router as websocket_router
+from src.payment.payment_webhook_routes import router as payment_webhook_router
 from src.checkout.checkout_routes import router as checkout_router
 from src.websocket.websocket_manager import manager
 
