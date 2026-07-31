@@ -113,8 +113,7 @@ async def verify_otp_endpoint(
         access_token = create_access_token(merchant_id=existing_merchant.merchant_id)
 
         return AuthResponse(
-            access_token=access_token,
-            merchant_id=existing_merchant.merchant_id,    
+            access_token=access_token,  
         )
 
 

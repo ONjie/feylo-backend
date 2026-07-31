@@ -229,7 +229,6 @@ class TestAuthRoutes:
 
         if expected_http_status == status.HTTP_200_OK:
             assert "access_token" in json_data
-            assert json_data["merchant_id"] == merchant_id
 
             decoded_jwt = jwt.decode(
                 json_data["access_token"], 

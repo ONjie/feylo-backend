@@ -47,4 +47,3 @@ class AuthResponse(BaseModel):
     status: str = "success"
     access_token: str
     token_type: str = "bearer"
-    merchant_id: str
