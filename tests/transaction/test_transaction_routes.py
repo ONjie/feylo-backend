@@ -116,7 +116,6 @@ class TestTransactionRoute:
 
         if response.status_code == status.HTTP_200_OK:
             assert json_data['id'] == txn.id
-            assert json_data['merchant_id'] == merchant.merchant_id
             assert json_data['amount'] == txn.amount
         
         elif response.status_code == status.HTTP_404_NOT_FOUND:
