@@ -10,6 +10,8 @@ from src.merchant.exceptions import (
     )
 from typing import Optional
 
+from src.transaction.models import Transaction
+
 
 async def create_merchant(merchant: MerchantCreate, session:AsyncSession) -> MerchantRead:
 
@@ -36,13 +38,13 @@ async def create_merchant(merchant: MerchantCreate, session:AsyncSession) -> Mer
 async def get_merchant(
         session:AsyncSession,
         merchant_id: Optional[str] = None, 
-        phone_number: Optional[str] = None
+        phone_number: Optional[str] = None,
+        transaction_limit: int = 10,
         ) -> MerchantRead:
     if not merchant_id and not phone_number:
         raise InvalidMerchantLookupError("Either merchant_id or phone_number must be provided.")
     
     query = select(Merchant).options(
-        selectinload(Merchant.transactions),
         selectinload(Merchant.wallet)
     )
 
@@ -60,7 +62,32 @@ async def get_merchant(
     if not existing_merchant:
         identifier = merchant_id or phone_number
         raise MerchantNotFoundError(f"Merchant {identifier} not found.")
-    return MerchantRead.model_validate(existing_merchant)
+
+    
+    transaction_query = (
+        select(Transaction)
+        .where(
+            Transaction.merchant_id == existing_merchant.merchant_id
+        )
+        .order_by(Transaction.created_at.desc())
+        .limit(transaction_limit)
+    )
+
+    transaction_result = await session.execute(transaction_query)
+
+    transactions = transaction_result.scalars().all()
+
+    return MerchantRead(
+        merchant_id=existing_merchant.merchant_id,
+        first_name=existing_merchant.first_name,
+        last_name=existing_merchant.last_name,
+        phone_number=existing_merchant.phone_number,
+        is_active=existing_merchant.is_active,
+        is_verified=existing_merchant.is_verified,
+        business_name=existing_merchant.business_name,
+        transactions=transactions,
+        wallet=existing_merchant.wallet,
+    )
 
 
 async def deactivate_merchant_account(merchant_id: str, session:AsyncSession) ->MerchantRead:
