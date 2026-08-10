@@ -3,7 +3,6 @@ from datetime import datetime
 
 
 class WalletRead(BaseModel):
-    id: str
     balance: float
     currency: str
     updated_at: datetime
