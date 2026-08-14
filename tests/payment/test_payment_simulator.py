@@ -9,9 +9,6 @@ from src.payment.payment_simulator import execute_simulated_webhook, PAYMENT_PRO
 from src.utils.config import settings
 
 
-
-
-
 @pytest.mark.asyncio
 class TestPaymentSimulator:
 
@@ -58,6 +55,7 @@ class TestPaymentSimulator:
 
         txn_id = "TXN_SIM_9999"
         customer_phone_number = "+2201234567"
+        customer_full_name = "Ablie Jallow"
         
 
         expected_url = f"{settings.BASE_URL}/api/v1/payments/webhook"
@@ -70,7 +68,8 @@ class TestPaymentSimulator:
                 txn_id=txn_id,
                 payment_provider=input_provider,
                 amount=input_amount,
-                customer_phone_number=customer_phone_number
+                customer_phone_number=customer_phone_number,
+                customer_full_name=customer_full_name
             )
         finally:
            
