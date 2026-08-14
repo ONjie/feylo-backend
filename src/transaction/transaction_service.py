@@ -49,6 +49,7 @@ async def complete_transaction(
     txn.payment_provider = payload.payment_provider
     txn.external_ref = payload.external_reference
     txn.customer_phone_number = payload.customer_phone_number
+    txn.customer_full_name = payload.customer_full_name
     txn.completed_at = now
     await session.commit()
     await session.refresh(txn)
