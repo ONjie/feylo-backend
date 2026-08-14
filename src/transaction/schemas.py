@@ -11,6 +11,7 @@ class TransactionRead(BaseModel):
     status: str
     payment_provider: Optional[str]
     customer_phone_number: Optional[str]
+    customer_full_name: Optional[str]
     external_ref: Optional[str]
     created_at: datetime
     completed_at: Optional[datetime]
