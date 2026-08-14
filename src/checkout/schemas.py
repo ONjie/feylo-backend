@@ -4,6 +4,7 @@ import re
 class CheckoutPayRequest(BaseModel):
     payment_provider: str            
     customer_phone_number: str
+    customer_full_name: str
 
     @field_validator("customer_phone_number")
     @classmethod
