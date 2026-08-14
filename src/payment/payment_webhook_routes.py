@@ -84,7 +84,8 @@ async def receive_webhook(
                 "fee": float(txn.fee),
                 "currency": txn.currency,
                 "provider": txn.payment_provider,
-                "customer_phone": txn.customer_phone_number,
+                "customer_phone_number": txn.customer_phone_number,
+                "customer_full_name": txn.customer_full_name,
             })
             logger.info(f"Payment completed: {txn.id} | {txn.amount} GMD via {txn.payment_provider}")
 
