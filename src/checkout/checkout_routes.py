@@ -57,6 +57,7 @@ async def initiate_payment_endpoint(
             body.payment_provider.lower(),
             float(txn.amount),
             body.customer_phone_number,
+            body.customer_full_name,
         )
         return {"status": "processing", "message": "Check your phone for PIN prompt"}
     
