@@ -39,6 +39,8 @@ class Transaction(Base):
     payment_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
     external_ref: Mapped[str | None] = mapped_column(String(100), nullable=True)
     customer_phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    customer_full_name: Mapped[str | None] = mapped_column(String(20), nullable=True)
+
 
     # QR expiry
     expires_at: Mapped[datetime | None] = mapped_column(
