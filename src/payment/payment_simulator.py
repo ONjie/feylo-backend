@@ -27,6 +27,7 @@ async def execute_simulated_webhook(
     payment_provider: str,
     amount: float,
     customer_phone_number: str,
+    customer_full_name: str
 ) -> None:
     delay = random.uniform(2.0, 4.5)
     logger.info(f"[SIM] {payment_provider} USSD delay: {delay:.1f}s for {txn_id}")
@@ -39,6 +40,7 @@ async def execute_simulated_webhook(
         "status": "SUCCESS",
         "external_reference": PAYMENT_PROVIDER_REFS.get(payment_provider, lambda: "REF-000000")(),
         "customer_phone_number": customer_phone_number,
+        "customer_full_name": customer_full_name,
     }
     raw = json.dumps(payload).encode()
 
