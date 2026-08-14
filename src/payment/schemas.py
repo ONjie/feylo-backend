@@ -24,6 +24,7 @@ class WebhookPayload(BaseModel):
     status: str              
     external_reference: str
     customer_phone_number: Optional[str] = None
+    customer_full_name: Optional[str] = None
 
 
 class WebhookResponse(BaseModel):
