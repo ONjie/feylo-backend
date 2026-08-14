@@ -111,8 +111,7 @@ class TestCheckoutRoutes:
         else:
             print(f'data: {json_data}')
             assert json_data["detail"] == expected_detail 
-
-    
+  
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -164,6 +163,8 @@ class TestCheckoutRoutes:
         app.dependency_overrides[get_db_session] = lambda: db_session
         target_tx_id = str(uuid.uuid4())
 
+        customer_full_name = 'Ablie Jallow'
+
         if txn_status is not None:
             merchant = Merchant(
                 first_name="Muhammed O", 
@@ -184,7 +185,8 @@ class TestCheckoutRoutes:
                 fee=10.0,
                 currency="GMD", 
                 payment_provider="Wave",
-                customer_phone_number="+2201112223"
+                customer_phone_number="+2201112223",
+                customer_full_name=customer_full_name
             )
             db_session.add(txn)
             await db_session.commit()
@@ -192,7 +194,11 @@ class TestCheckoutRoutes:
             target_tx_id = txn.id
 
         
-        payload = {"payment_provider": chosen_provider, "customer_phone_number": customer_phone_number}
+        payload = {
+            "payment_provider": chosen_provider, 
+            "customer_phone_number": customer_phone_number, 
+            "customer_full_name": customer_full_name
+            }
 
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url=self.base_url) as client:
