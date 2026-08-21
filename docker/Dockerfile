@@ -9,7 +9,7 @@ COPY . /app
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-RUN uv sync --frozen --no-cache
+RUN uv sync --frozen 
 
 EXPOSE 8000
 
