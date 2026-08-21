@@ -5,6 +5,7 @@ from src.transaction.models import Transaction, TxnStatus
 from src.payment.schemas import WebhookPayload
 from src.utils.config import settings
 from src.transaction.exceptions import TransactionNotFoundError
+from sqlalchemy.orm import selectinload
 
 
 async def create_pending_transaction(
@@ -30,7 +31,9 @@ async def create_pending_transaction(
 async def get_transaction_by_id(transaction_id: str, session: AsyncSession) -> Transaction:
 
     result = await session.execute(
-        select(Transaction).where(Transaction.id == transaction_id)
+    select(Transaction)
+    .options(selectinload(Transaction.merchant))
+    .where(Transaction.id == transaction_id)
     )
 
     existing_transaction = result.scalar_one_or_none()
