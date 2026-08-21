@@ -22,10 +22,18 @@ router = APIRouter(tags=["websocket"])
 @router.websocket("/ws/merchant")
 async def merchant_websocket_endpoint(
     ws: WebSocket,
-    token: str,
     session: AsyncSession = Depends(get_db_session),
 ):
     try:  
+        token = ws.cookies.get("access_token")
+
+        if not token:
+            await ws.close(
+                code=status.WS_1008_POLICY_VIOLATION,
+                reason="Authentication required",
+            )
+            return
+        
         merchant_id = decode_access_token(token=token)
             
         merchant = await get_merchant(merchant_id=merchant_id, session=session)
