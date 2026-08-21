@@ -19,18 +19,14 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["websocket"])
 
 
-@router.websocket("/ws/merchant/{merchant_id}")
+@router.websocket("/ws/merchant")
 async def merchant_websocket_endpoint(
     ws: WebSocket,
-    merchant_id: str,
     token: str,
     session: AsyncSession = Depends(get_db_session),
 ):
     try:  
-        token_merchant_id = decode_access_token(token=token)
-        if token_merchant_id != merchant_id:
-            await ws.close(code=status.WS_1008_POLICY_VIOLATION, reason="Wrong merchant id")
-            return
+        merchant_id = decode_access_token(token=token)
             
         merchant = await get_merchant(merchant_id=merchant_id, session=session)
         if not merchant.is_active or not merchant.is_verified:
