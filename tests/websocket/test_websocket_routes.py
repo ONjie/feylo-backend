@@ -18,10 +18,9 @@ from unittest.mock import AsyncMock, patch
 class TestWebsocketRoute:
 
     @pytest.mark.parametrize(
-        "merchant_id, token_merchant_id, merchant_state, merchant_exists, expected_close_code",
+        "merchant_id, merchant_state, merchant_exists, expected_close_code",
         [
             pytest.param(
-                "MERCH_1234",
                 "MERCH_1234",
                 {"is_active": True, "is_verified": True},
                 True,
@@ -30,22 +29,12 @@ class TestWebsocketRoute:
             ),
             pytest.param(
                 "MERCH_1234",
-                "MERCH_2345",
-                {"is_active": True, "is_verified": True},
-                True,
-                status.WS_1008_POLICY_VIOLATION,
-                id="wrong_merchant_id_failure",
-            ),
-            pytest.param(
-                "MERCH_1234",
-                "MERCH_1234",
                 {"is_active": True, "is_verified": False},
                 True,
                 status.WS_1008_POLICY_VIOLATION,
                 id="merchant_not_verified_failure",
             ),
             pytest.param(
-                "MERCH_9999",
                 "MERCH_9999",
                 {"is_active": True, "is_verified": True},
                 False,
@@ -57,13 +46,12 @@ class TestWebsocketRoute:
     def test_merchant_websocket_endpoint(
         self,
         merchant_id,
-        token_merchant_id,
         merchant_state,
         merchant_exists,
         expected_close_code,
     ):
         token_string = create_access_token(
-            merchant_id=token_merchant_id
+            merchant_id=merchant_id
         )
 
         merchant = Merchant(
@@ -89,9 +77,14 @@ class TestWebsocketRoute:
         ):
                 client = TestClient(app=app)
 
+                client.cookies.set(
+                "access_token",
+                token_string,
+            )
+
                 if expected_close_code is None:
                     with client.websocket_connect(
-                        f"/ws/merchant/{merchant_id}?token={token_string}"
+                        f"/ws/merchant"
                     ) as ws:
                         ws.send_text("ping")
                         assert ws.receive_text() == "pong"
@@ -99,7 +92,7 @@ class TestWebsocketRoute:
                 else:
                     with pytest.raises(WebSocketDisconnect) as exc:
                         with client.websocket_connect(
-                            f"/ws/merchant/{merchant_id}?token={token_string}"
+                            f"/ws/merchant"
                         ) as ws:
                             ws.receive_text()
 
