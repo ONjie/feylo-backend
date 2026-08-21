@@ -15,6 +15,7 @@ class TransactionRead(BaseModel):
     external_ref: Optional[str]
     created_at: datetime
     completed_at: Optional[datetime]
+    business_name: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
