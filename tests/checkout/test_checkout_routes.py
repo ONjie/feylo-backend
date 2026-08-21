@@ -107,9 +107,9 @@ class TestCheckoutRoutes:
         json_data = response.json()
         if expected_detail is None:
             assert json_data['id'] == txn_id
+            assert json_data['business_name'] == merchant.business_name
 
         else:
-            print(f'data: {json_data}')
             assert json_data["detail"] == expected_detail 
   
 
