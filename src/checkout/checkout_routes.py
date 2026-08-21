@@ -7,6 +7,7 @@ from src.payment.payment_simulator import execute_simulated_webhook
 from src.transaction.models import TxnStatus
 from src.transaction.exceptions import TransactionNotFoundError
 from src.transaction.schemas import TransactionRead
+from src.merchant.merchant_service import get_merchant
 
 
 router = APIRouter(prefix="/checkout",tags=["checkout"])
@@ -26,11 +27,24 @@ async def checkout_endpoint(
         if transaction.status in (TxnStatus.FAILED, TxnStatus.EXPIRED):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This payment link has expired.")
 
-        return TransactionRead.model_validate(transaction)
+        return TransactionRead(
+            id=transaction.id,
+            amount=transaction.amount,
+            fee=transaction.fee,
+            net_amount=transaction.net_amount,
+            currency=transaction.currency,
+            status=transaction.status,
+            payment_provider=transaction.payment_provider,
+            customer_phone_number=transaction.customer_phone_number,
+            customer_full_name=transaction.customer_full_name,
+            external_ref=transaction.external_ref,
+            created_at=transaction.created_at,
+            completed_at=transaction.completed_at,
+            business_name=transaction.merchant.business_name,
+        )
     
     except TransactionNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
-
 
 
 @router.post("/{transaction_id}/pay")
