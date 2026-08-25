@@ -77,14 +77,10 @@ class TestWebsocketRoute:
         ):
                 client = TestClient(app=app)
 
-                client.cookies.set(
-                "access_token",
-                token_string,
-            )
 
                 if expected_close_code is None:
                     with client.websocket_connect(
-                        f"/ws/merchant"
+                        f"/ws/merchant/{token_string}"
                     ) as ws:
                         ws.send_text("ping")
                         assert ws.receive_text() == "pong"
@@ -92,7 +88,7 @@ class TestWebsocketRoute:
                 else:
                     with pytest.raises(WebSocketDisconnect) as exc:
                         with client.websocket_connect(
-                            f"/ws/merchant"
+                            f"/ws/merchant/{token_string}"
                         ) as ws:
                             ws.receive_text()
 
