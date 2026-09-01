@@ -4,12 +4,16 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
+COPY pyproject.toml uv.lock /app/
+
+RUN uv sync --frozen --no-install-project
+
 COPY . /app
+
+RUN uv sync --frozen
 
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
-
-RUN uv sync --frozen 
 
 EXPOSE 8000
 
